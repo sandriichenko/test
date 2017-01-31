@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Spaced-armour-tests: test ironic_underlay step by step &#8212; test-test 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="spaced-armour-tests-test-ironic-underlay-step-by-step">
+<h1>Spaced-armour-tests: test ironic_underlay step by step<a class="headerlink" href="#spaced-armour-tests-test-ironic-underlay-step-by-step" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="annotation">
+<h2>Annotation<a class="headerlink" href="#annotation" title="Permalink to this headline">¶</a></h2>
+<p>Spaced-armour-tests is intended to provide the community with a testing toolkit based on
+Stepler framework that is capable of perform testing of ironic_underlay</p>
+</div>
+<div class="section" id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h2>
+<p>Architecture has following abstraction levels, where code lives (from higher to less):</p>
+<ul class="simple">
+<li><strong>clients</strong> are able to manipulate resources: <em>users, roles, servers, nodes etc</em>. For ex: <em>keystone client, ironic client, etc</em>.</li>
+<li><strong>steps</strong> are actions, that we want to make over resources via <strong>clients</strong>: <em>create, delete, update, etc</em>. They should end with check, that step was finished correct.</li>
+<li><strong>fixtures</strong> manage resources <em>construction, destruction, etc</em> via <strong>steps</strong>.</li>
+<li><strong>tests</strong> combine <strong>steps</strong> and <strong>fixtures</strong> according to scenario.</li>
+</ul>
+<p>Detailed information about auto tests construction is available in <a class="reference external" href="http://autotests-guideline.readthedocs.io/">our guideline</a>.</p>
+<p>Sometimes it needs to have code for <em>ssh connection, proxy server, etc</em>. They are not related with <strong>clients</strong>, <strong>steps</strong>, <strong>fixtures</strong> and <strong>tests</strong> and are considered as third party helpers and must be implemented based on its purpose with OOP and design principles.</p>
+<p>Spaced-armour-tests uses <a class="reference external" href="http://doc.pytest.org/">py.test</a> as test runner and <a class="reference external" href="https://tox.readthedocs.io/">tox</a> for routine operations. Be sure you know them.</p>
+</div>
+<div class="section" id="how-to-install">
+<h2>How to install<a class="headerlink" href="#how-to-install" title="Permalink to this headline">¶</a></h2>
+<p>Make following commands in terminal:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">Mirantis</span><span class="o">/</span><span class="n">spaced</span><span class="o">-</span><span class="n">armour</span><span class="o">-</span><span class="n">tests</span><span class="o">.</span><span class="n">git</span>
+<span class="n">cd</span> <span class="n">spaced</span><span class="o">-</span><span class="n">armour</span><span class="o">-</span><span class="n">tests</span>
+<span class="n">virtualenv</span> <span class="o">.</span><span class="n">venv</span>
+<span class="o">.</span> <span class="o">.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">pip</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="how-to-run-tests">
+<h2>How to run tests<a class="headerlink" href="#how-to-run-tests" title="Permalink to this headline">¶</a></h2>
+<p><em>If you know how to launch tests with py.test, you may skip this section.</em></p>
+<p>Before launching you should export some openstack environment variables:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">OS_PROJECT_NAME</span></code> (default value <code class="docutils literal"><span class="pre">'baremetal'</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">OS_PASSWORD</span></code> (default value <code class="docutils literal"><span class="pre">'ChangeThisPa55w0rd'</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">OS_AUTH_URL</span></code> (keystone auth url should be defined explicitly: v3 - <a class="reference external" href="http://keystone/url/v3">http://keystone/url/v3</a>)</li>
+<li><code class="docutils literal"><span class="pre">OS_USERNAME</span></code> (default value <code class="docutils literal"><span class="pre">'bifrost_user'</span></code>)</li>
+</ul>
+<p>To get details look into <code class="docutils literal"><span class="pre">spaced-armour-tests/config.py</span></code></p>
+<p>Let&#8217;s view typical commands to launch test in different ways:</p>
+<ul>
+<li><p class="first">If you want to launch all tests (<code class="docutils literal"><span class="pre">-v</span></code> is used to show full name and status of each test):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">py</span><span class="o">.</span><span class="n">test</span> <span class="n">spaced</span><span class="o">-</span><span class="n">armour</span><span class="o">-</span><span class="n">tests</span> <span class="o">-</span><span class="n">v</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">For ex, you write the test <code class="docutils literal"><span class="pre">test_node_create</span></code> and want to launch it only:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">py</span><span class="o">.</span><span class="n">test</span> <span class="n">spaced</span><span class="o">-</span><span class="n">armour</span><span class="o">-</span><span class="n">tests</span> <span class="o">-</span><span class="n">k</span> <span class="n">test_node_create</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">If your test was failed and you want to debug it, you should disable stdout capture:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">py</span><span class="o">.</span><span class="n">test</span> <span class="n">spaced</span><span class="o">-</span><span class="n">armour</span><span class="o">-</span><span class="n">tests</span> <span class="o">-</span><span class="n">k</span> <span class="n">test_node_create</span> <span class="o">-</span><span class="n">s</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Full information about <code class="docutils literal"><span class="pre">py.test</span></code> is obtainable with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">py</span><span class="o">.</span><span class="n">test</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="how-to-debug-tests">
+<h2>How to debug tests<a class="headerlink" href="#how-to-debug-tests" title="Permalink to this headline">¶</a></h2>
+<p>We recommend to use <code class="docutils literal"><span class="pre">ipdb</span></code> to set up break points inside code. Just put following chunk before code line where you want to debug (don&#8217;t forget about <code class="docutils literal"><span class="pre">-s</span></code> to disable  <code class="docutils literal"><span class="pre">py.test</span></code> stdout capture):</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ipdb</span><span class="p">;</span> <span class="n">ipdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="deep-to-structure">
+<h2>Deep to structure<a class="headerlink" href="#deep-to-structure" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Spaced-armour-tests: test ironic_underlay step by step</a><ul>
+<li><a class="reference internal" href="#annotation">Annotation</a></li>
+<li><a class="reference internal" href="#architecture">Architecture</a></li>
+<li><a class="reference internal" href="#how-to-install">How to install</a></li>
+<li><a class="reference internal" href="#how-to-run-tests">How to run tests</a></li>
+<li><a class="reference internal" href="#how-to-debug-tests">How to debug tests</a></li>
+<li><a class="reference internal" href="#deep-to-structure">Deep to structure</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Sofiia Andriichenko.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
